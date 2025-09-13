@@ -1,7 +1,28 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
+import { ClerkProvider } from "@clerk/nextjs";
 const inter = Inter ({ subsets: ["latin"]});
+import { Geist, Geist_Mono } from 'next/font/google'
+import './globals.css'
+import {
+  SignedOut,
+  SignedIn,
+  UserButton,
+  SignInButton,
+  SignUpButton
+} from "@clerk/nextjs";
+
+
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 
 export const metadata = {
   title: "Welth",
@@ -10,18 +31,25 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className}`}>
-        {/* header */}
-        <Header/>
-
-        <main className="min-h-screen">{children}</main>        {/* footer*/}
-        <footer className="bg-blue-100 py-12">
-          <div className="container mx-auto px-4 text-center">
-            <p>Made by Sandeep</p>
-          </div>
-        </footer>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <header className="flex justify-end items-center p-4 gap-4 h-16">
+            <SignedOut>
+              <SignInButton />
+              <SignUpButton>
+                <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </header>
+          {children}
         </body>
-    </html>
+      </html>
+    </ClerkProvider>
   );
 } 
