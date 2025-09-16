@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef } from "react";
 
-const HeroSection = () => {                      //useState=store values that affect rendering (UI).when value changes, the component re-renders.use for: user input, toggles, fetched data.
-  const imageRef = useRef(null);            //useRef=store values or DOM references that don’t cause re-renders.
+const HeroSection = () => {                      //useState =store values that affect rendering (UI).when value changes, the component re-renders.use for: user input, toggles, fetched data.
+  const imageRef = useRef(null);            //useRef =store values or DOM references that don’t cause re-renders.
 
-  useEffect(() => {
+  useEffect(() => {                   //useEffect= runs code after the component renders(setup on mount).Without useEffect scroll logic wouldn’t start working.
     const imageElement = imageRef.current;
 
     const handleScroll = () => {
@@ -22,8 +22,8 @@ const HeroSection = () => {                      //useState=store values that af
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll);  //tells the browser Whenever the user scrolls run handleScroll(actually triggers the visual effect when scrolling.
+    return () => window.removeEventListener("scroll", handleScroll);  // (cleanup function)-When component unmounts (re-renders)the scroll listener is removed.
   }, []);
 
   return ( 

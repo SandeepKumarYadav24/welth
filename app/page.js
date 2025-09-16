@@ -65,7 +65,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section-(reviews, quotes, or feedback from users/customers.)*/}
       <section id="testimonials" className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-16">
@@ -98,7 +98,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/*CTA (Call to Action) Section-(encourages users to take next step like signing up, starting a free trial, or contacting you.)*/}
       <section className="py-20" style={{ backgroundColor: '#3d4180' }}>
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
