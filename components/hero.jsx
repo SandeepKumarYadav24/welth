@@ -3,8 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useEffect, useRef } from "react";
 
-const HeroSection = () => {
+const HeroSection = () => {                      //useState=store values that affect rendering (UI).when value changes, the component re-renders.use for: user input, toggles, fetched data.
+  const imageRef = useRef(null);            //useRef=store values or DOM references that don’t cause re-renders.
+
+  useEffect(() => {
+    const imageElement = imageRef.current;
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const scrollThreshold = 100;
+
+      if (scrollPosition > scrollThreshold) {
+        imageElement.classList.add("scrolled");
+      } else {
+        imageElement.classList.remove("scrolled");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return ( 
     <div className="pb-20 px-4">
         <div className="container mx-auto text-center">
@@ -27,16 +48,16 @@ const HeroSection = () => {
                 </Button>
             </Link>
             </div>
-            <div>
-                <div>
-                <Image
+            <div className="hero-image-wrapper">
+                <div ref={imageRef} className="hero-image">
+                  <Image
                     src="/banner.jpeg"
                     width={1280}
                     height={720}
                     alt="Dashboard Preview"
                     className="rounded-lg shadow-2xl border mx-auto"
                     priority
-                />
+                   />
                 </div>
             </div>
         </div>
