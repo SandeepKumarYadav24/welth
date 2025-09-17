@@ -3,7 +3,8 @@ import React from 'react';
 
 const Page = () => {
   return <>
-  <SignUp />
+  {/*[...segment]-catch‑all[[...segment]]-optional catch‑all. */}
+  <SignUp />                         
   </>;
 };
 export default Page;
