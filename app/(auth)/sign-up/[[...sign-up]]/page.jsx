@@ -3,7 +3,7 @@ import React from 'react';
 
 const Page = () => {
   return <>
-  {/*[...segment]-catch‑all[[...segment]]-optional catch‑all. */}
+  {/* [segment]-dynamic route [...segment]-catch‑all [[...segment]]-optional catch‑all. */}
   <SignUp />                         
   </>;
 };
