@@ -5,11 +5,14 @@ import {  Drawer, DrawerTrigger,  DrawerContent, DrawerHeader, DrawerTitle,} fro
 const CreateAccountDrawer = ({ children }) => {
   return (
     <Drawer>
-      <DrawerTrigger>{children}</DrawerTrigger> 
+      <DrawerTrigger asChild>{children}</DrawerTrigger> 
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Are you absolutely sure?</DrawerTitle>
+          <DrawerTitle>Create New Account</DrawerTitle>
         </DrawerHeader>
+        <div>
+          <form></form>
+        </div>  
       </DrawerContent>
     </Drawer>
   );
