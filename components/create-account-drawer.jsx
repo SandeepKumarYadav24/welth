@@ -3,11 +3,14 @@ import { useState } from 'react';
 import {  Drawer, DrawerTrigger,  DrawerContent, DrawerHeader, DrawerTitle, DrawerClose,} from "@/components/ui/drawer"
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateAccount } from "@/actions/dashboard";
 import { accountSchema } from "@/app/lib/schema";
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button";
+import useFetch from "@/hooks/use-fetch";
+import { Loader2 } from 'lucide-react';
 
 const CreateAccountDrawer = ({ children }) => {
   const [open, setOpen] = useState(false);
@@ -22,8 +25,15 @@ const CreateAccountDrawer = ({ children }) => {
     },
   });
 
+  const {
+    loading: CreateAccountLoading,
+    fn:CreateAccountFn,
+    error,
+    data: newAccount,
+  } = useFetch( CreateAccount);
+
   const onSubmit = async (data) => {
-    console.log(data);
+    await CreateAccountFn(data);
   };
 
   return (
@@ -97,7 +107,14 @@ const CreateAccountDrawer = ({ children }) => {
                 </Button>
               </DrawerClose>
               <Button type="submit" className="flex-1">
-                 Create Account
+                {!CreateAccountLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                    </>
+                  ) : (
+                    "Create Account"
+                    )}
               </Button>
             </div>
           </form>
