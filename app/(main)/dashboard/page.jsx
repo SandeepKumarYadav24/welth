@@ -1,15 +1,25 @@
-import CreateAccountDrawer from "@/components/create-account-drawer";  // ✅ fixed
+import { getUserAccounts } from "@/actions/dashboard";
+import CreateAccountDrawer from "@/components/create-account-drawer";
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import React from 'react';
+import { db } from "@/lib/prisma";
+import { AccountCard } from "./_components/account-card";
 
-function Dashboard () {
+
+async function DashboardPage() {
+  const accounts = await db.account.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      balance: true,
+    },
+  });
+
   return (
     <div className="px-5">
-      {/* Budget Progress */}
-
-      {/* Dashboard Overview */}
-
       {/* Account Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <CreateAccountDrawer>
@@ -20,9 +30,14 @@ function Dashboard () {
             </CardContent>
           </Card>
         </CreateAccountDrawer>
+
+        {accounts.length > 0 &&
+          accounts?.map((account) => (
+            <AccountCard key={account.id} account={account} />
+          ))}
       </div>
     </div>
   );
-};
+}
 
-export default Dashboard;
+export default DashboardPage;

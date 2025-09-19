@@ -4,11 +4,17 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
+
 const serializeTransaction = (obj) => {
   const serialized = { ...obj };              //serializeTransaction → make DB/objects JSON-safe
   if (obj.balance) {
     serialized.balance = obj.balance.toNumber();           //get safe numeric/string value
   }
+
+  if (obj.amount) {
+    serialized.amount = obj.amount.toNumber();           //get safe numeric/string value
+  }
+  return serialized;
 };
 
 export async function CreateAccount(data) {
@@ -66,4 +72,25 @@ export async function CreateAccount(data) {
   } catch (error) {
     throw new Error(error.message);
   }   
+}                             
+
+export async function getUserAccounts() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+   // Get all user transactions
+  const transactions = await db.transaction.findMany({
+    where: { userId: user.id },
+    orderBy: { date: "desc" },
+  });
+
+  return transactions.map(serializeTransaction);
 }
