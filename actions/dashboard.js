@@ -76,7 +76,7 @@ export async function CreateAccount(data) {
 }                             
 
 export async function getUserAccounts() {
-  const { userId } = await auth();
+  const { userId } = await auth();                   //fetch account from db
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
@@ -89,10 +89,10 @@ export async function getUserAccounts() {
 
   const accounts = await db.account.findMany({
     where: { userId: user.id },
-    orderBy: { date: "desc" },
+    orderBy: { createdAt: "desc" },
     include: {
       _count: {
-        Select: {
+        select: {
           transactions: true,
         },
       },

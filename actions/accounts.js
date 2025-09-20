@@ -4,17 +4,18 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
+
+// Serialize account or transaction objects
 const serializeTransaction = (obj) => {
   const serialized = { ...obj };
-  if (obj.balance) {
+  if (obj.balance && typeof obj.balance.toNumber === "function") {
     serialized.balance = obj.balance.toNumber();
   }
-  if (obj.amount) {
+  if (obj.amount && typeof obj.amount.toNumber === "function") {
     serialized.amount = obj.amount.toNumber();
   }
   return serialized;
 };
-
 
 export async function updateDefaultAccount(accountId) {
   try {
@@ -25,17 +26,15 @@ export async function updateDefaultAccount(accountId) {
       where: { clerkUserId: userId },
     });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+    if (!user) throw new Error("User not found");
 
-    // First, unset any existing default account
+    // Unset previous default account
     await db.account.updateMany({
       where: { userId: user.id, isDefault: true },
       data: { isDefault: false },
     });
 
-    // Then set the new default account
+    // Set new default account
     const account = await db.account.update({
       where: {
         id: accountId,
@@ -49,4 +48,37 @@ export async function updateDefaultAccount(accountId) {
   } catch (error) {
     return { success: false, error: error.message };
   }
+}
+
+export async function getAccountWithTransactions(accountId) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  const account = await db.account.findUnique({
+    where: {
+      id: accountId,
+      userId: user.id,
+    },
+    include: {
+      transactions: {
+        orderBy: {createdAt: "desc" },
+      },
+      _count: {
+        select: { transactions: true },
+      },
+    },
+  });
+
+  if (!account) return null;
+
+  return {
+    ...serializeTransaction(account),
+    transactions: account.transactions.map(serializeTransaction),
+  };
 }
