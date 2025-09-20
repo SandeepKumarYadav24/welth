@@ -8,18 +8,14 @@ import { AccountCard } from "./_components/account-card";
 
 
 async function DashboardPage() {
-  const accounts = await db.account.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      type: true,
-      balance: true,
-    },
-  });
+  const accounts = await getUserAccounts();
 
   return (
     <div className="px-5">
+
+      {/* Budget Progress */}
+      {/* Budget Progress */}
+    
       {/* Account Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <CreateAccountDrawer>

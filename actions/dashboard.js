@@ -3,6 +3,7 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { Select } from "react-day-picker";
 
 
 const serializeTransaction = (obj) => {
@@ -86,11 +87,19 @@ export async function getUserAccounts() {
     throw new Error("User not found");
   }
 
-   // Get all user transactions
-  const transactions = await db.transaction.findMany({
+  const accounts = await db.account.findMany({
     where: { userId: user.id },
     orderBy: { date: "desc" },
+    include: {
+      _count: {
+        Select: {
+          transactions: true,
+        },
+      },
+    },
   });
 
-  return transactions.map(serializeTransaction);
+  const serializedAccount = accounts.map(serializeTransaction);
+
+  return  serializedAccount;
 }
