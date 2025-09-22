@@ -354,7 +354,7 @@ const TransactionTable = ({ transactions}) => {
                         <Tooltip>
                           <TooltipTrigger>
                             <Badge 
-                              variant="outline" 
+                              variant="secondary" 
                               className="gap-1 bg-purple-100 text-purple-700 hover:bg-purple-200"
                             >
                               <RefreshCw className="h-3 w-3" />
@@ -371,7 +371,7 @@ const TransactionTable = ({ transactions}) => {
                                  <div>
                                     {format(
                                       new Date(transaction.nextRecurringDate), 
-                                      "PP"
+                                      "PPP"
                                     )}
                                  </div>
                             </div>
@@ -385,7 +385,7 @@ const TransactionTable = ({ transactions}) => {
                       </Badge>
                     )}
                  </TableCell>
-
+                 
                  <TableCell>
                    <DropdownMenu>
                      <DropdownMenuTrigger asChild>
@@ -393,7 +393,7 @@ const TransactionTable = ({ transactions}) => {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                      </DropdownMenuTrigger>
-                     <DropdownMenuContent>
+                     <DropdownMenuContent align="end">
                        <DropdownMenuItem
                          onClick={() =>
                            router.push(
