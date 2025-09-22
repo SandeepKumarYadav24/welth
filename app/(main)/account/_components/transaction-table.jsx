@@ -47,6 +47,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { bulkDeleteTransactions } from "@/actions/accounts.js";
+import useFetch from "@/hooks/use-fetch";
+import { BarLoader } from "react-spinners";
+import { toast } from "sonner";
+
 
 const RECURRING_INTERVALS = {
   DAILY: "Daily",
@@ -67,7 +72,61 @@ const TransactionTable = ({ transactions}) => {
   const [typeFilter, setTypeFilter] = useState("");
   const [recurringFilter, setRecurringFilter] = useState("");
 
-  const filteredAndSortedTransactions = transactions;
+  const {
+    loading: deleteLoading,
+    fn: deleteFn,
+    data: deleted,
+  } = useFetch(bulkDeleteTransactions);
+
+
+  const filteredAndSortedTransactions = useMemo(() => {
+    let result = [...transactions];
+
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      result = result.filter((transaction) =>
+        transaction.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply recurring filter
+    if (recurringFilter) {
+      result = result.filter((transaction) => {
+        if (recurringFilter === "recurring") return transaction.isRecurring;
+        return !transaction.isRecurring;
+      });
+    }
+  
+    // Apply type filter
+    if (typeFilter) {
+      result = result.filter((transaction) => transaction.type === typeFilter);
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortConfig.field) {
+        case "date":
+          comparison = new Date(a.date) - new Date(b.date);
+          break;
+        case "amount":
+          comparison = a.amount - b.amount;
+          break;
+        case "category":
+          comparison = a.category.localeCompare(b.category);          //avaScript string method compares two strings alphabetically 
+          break;
+        default:
+          comparison = 0;
+      }
+
+      return sortConfig.direction === "asc" ? comparison : -comparison;
+    });   
+
+    return result;
+  }, [transactions, searchTerm, typeFilter, recurringFilter, sortConfig]);
+
 
   const handleSort = (field) => {
     setSortConfig((current) => ({
@@ -93,7 +152,24 @@ const TransactionTable = ({ transactions}) => {
     );
   };
 
-  const handleBulkDelete = () => {};
+  const handleBulkDelete = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selectedIds.length} transactions?`
+      )
+    ) {
+      return;
+    }
+
+    deleteFn(selectedIds);
+  };
+
+  useEffect(() => {
+    if (deleted && !deleteLoading) {
+      toast.error("Transactions deleted successfully");
+    }
+  }, [deleted, deleteLoading]);
+
   const handleClearFilters = () => {
     setSearchTerm("");
     setTypeFilter("");
@@ -103,6 +179,9 @@ const TransactionTable = ({ transactions}) => {
 
   return (
     <div  className='space-y-4'>
+      {deleteLoading && (
+        <BarLoader className="mt-4" width={"100%"} color="#9333ea" />
+      )}
       {/* Filter */}
       <div className="flex flex-col sm:flex-row gap-4">
          <div  className="relative flex-1">
@@ -310,12 +389,12 @@ const TransactionTable = ({ transactions}) => {
                  <TableCell>
                    <DropdownMenu>
                      <DropdownMenuTrigger asChild>
-                        <Button Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                      </DropdownMenuTrigger>
                      <DropdownMenuContent>
-                       <DropdownMenuLabel
+                       <DropdownMenuItem
                          onClick={() =>
                            router.push(
                               `/transaction/create?edit=${transaction.id}`
@@ -323,11 +402,11 @@ const TransactionTable = ({ transactions}) => {
                           }
                         >
                          Edit
-                       </DropdownMenuLabel>
+                       </DropdownMenuItem>
                        <DropdownMenuSeparator />
                        <DropdownMenuItem
                           className="text-destructive"
-                          //onClick={() => deleteFn([transaction.id])}             // fetch from delete API
+                          onClick={() => deleteFn([transaction.id])}             // fetch from delete API
                        >
                         Delete
                        </DropdownMenuItem>

@@ -48,7 +48,7 @@ export async function seedTransactions() {
     let totalBalance = 0;
 
     for (let i = 90; i >= 0; i--) {
-      const date = subDays(new Date(), i);
+      const date = subDays(new Date(), i);       //handle date efficiently in next.js
 
       // Generate 1-3 transactions per day
       const transactionsPerDay = Math.floor(Math.random() * 3) + 1;
