@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 
 const DATE_RANGES = {
-  "7D": { label: "Last 7 Days", days: 7 },
+  "7D": { label: "Last 7 Days", days: 7 },  //DATE_RANGES-Object
   "1M": { label: "Last Month", days: 30 },
   "3M": { label: "Last 3 Months", days: 90 },
   "6M": { label: "Last 6 Months", days: 180 },
@@ -30,7 +30,7 @@ const DATE_RANGES = {
 };
 
 export function AccountChart({ transactions }) {
-  const [dateRange, setDateRange] = useState("1M");
+  const [dateRange, setDateRange] = useState("1M");     
 
   const filteredData = useMemo(() => {
     const range = DATE_RANGES[dateRange];
@@ -58,7 +58,7 @@ export function AccountChart({ transactions }) {
       return acc;
     }, {});
 
-    // Convert to array and sort by date
+    // Convert grouped data to array and sort by date
     return Object.values(grouped).sort(
       (a, b) => new Date(a.date) - new Date(b.date)
     );
@@ -86,7 +86,7 @@ export function AccountChart({ transactions }) {
             <SelectValue placeholder="Select range" />
           </SelectTrigger>
           <SelectContent>
-            {Object.entries(DATE_RANGES).map(([key, { label }]) => (
+            {Object.entries(DATE_RANGES).map(([key, { label }]) => (    ////DATE_RANGES-Object convert into array and map it.
               <SelectItem key={key} value={key}>
                 {label}
               </SelectItem>
@@ -113,8 +113,8 @@ export function AccountChart({ transactions }) {
             <p
               className={`text-lg font-bold ${
                 totals.income - totals.expense >= 0
-                  ? "text-green-500"
-                  : "text-red-500"
+                  ? "text-green-500"           // profit
+                  : "text-red-500"              //loss
               }`}
             >
               ${(totals.income - totals.expense).toFixed(2)}
@@ -122,7 +122,7 @@ export function AccountChart({ transactions }) {
           </div>
         </div>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%">            
             <BarChart
               data={filteredData}
               margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
