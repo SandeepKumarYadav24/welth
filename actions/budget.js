@@ -38,7 +38,7 @@ export async function getCurrentBudget(accountId) {
 
     const expenses = await db.transaction.aggregate({
       where: {
-        userId: user.id,
+        userId: user.id,         //aggregate:- used to calculate analytics/summary over many records.
         type: "EXPENSE",
         date: {
           gte: startOfMonth,
@@ -77,7 +77,7 @@ export async function updateBudget(amount) {
     // Update or create budget
     const budget = await db.budget.upsert({
       where: {
-        userId: user.id,
+        userId: user.id,        //upsert:- update if exists, otherwise insert (create).
       },
       update: {
         amount,
