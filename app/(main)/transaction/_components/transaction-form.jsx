@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { createTransaction, updateTransaction } from "@/actions/transaction";
 import { transactionSchema } from "@/app/lib/schema";
+import ReceiptScanner from "./receipt-scanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -84,9 +85,12 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
     (category) => category.type === type
   );
 
+  const handleScanComplete = (scannedData) => {};
+
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
       {/*  AI Recipt Scanner */}
+      <ReceiptScanner onScanComplete={handleScanComplete} />
 
       {/* Type */}
       <div className="space-y-2">
@@ -94,6 +98,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
         <Select
           onValueChange={(value) => setValue("type", value)}
           defaultValue={type}
+          suppressHydrationWarning={true}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select Type" />
@@ -129,6 +134,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
           <Select
             onValueChange={(value) => setValue("accountId", value)}
             defaultValue={getValues("accountId")}
+            suppressHydrationWarning={true}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select account" />
@@ -158,6 +164,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
         <Select
           onValueChange={(value) => setValue("category", value)}
           defaultValue={getValues("category")}
+          suppressHydrationWarning={true}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
@@ -178,7 +185,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
       {/* Date */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Date</label>
-        <Popover>
+        <Popover suppressHydrationWarning={true}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -238,6 +245,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
           <Select
             onValueChange={(value) => setValue("recurringInterval", value)}
             defaultValue={getValues("recurringInterval")}
+            suppressHydrationWarning={true}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select interval" />
