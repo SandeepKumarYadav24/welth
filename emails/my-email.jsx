@@ -8,7 +8,42 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
+
+// Dummy data for preview
+const PREVIEW_DATA = {
+  monthlyReport: {
+    userName: "John Doe",
+    type: "monthly-report",
+    data: {
+      month: "December",  //
+      stats: {
+        totalIncome: 5000,
+        totalExpenses: 3500,
+        byCategory: {
+          housing: 1500,
+          groceries: 600,
+          transportation: 400,
+          entertainment: 300,
+          utilities: 700,
+        },
+      },
+      insights: [
+        "Your housing expenses are 43% of your total spending - consider reviewing your housing costs.",
+        "Great job keeping entertainment expenses under control this month!",
+        "Setting up automatic savings could help you save 20% more of your income.",
+      ],
+    },  //
+  },
+  budgetAlert: {
+    userName: "John Doe",
+    type: "budget-alert",
+    data: {
+      percentageUsed: 85,
+      budgetAmount: 4000,
+      totalExpenses: 3400,
+    },
+  },
+};
 
 export default function EmailTemplate({
   userName = "",
@@ -73,6 +108,11 @@ export default function EmailTemplate({
                 ))}
               </Section>
             )}
+
+            <Text style={styles.footer}>
+              Thank you for using Welth. Keep tracking your finances for better
+              financial health!
+            </Text>
           </Container>
         </Body>
       </Html>
@@ -83,10 +123,10 @@ export default function EmailTemplate({
     return (
       <Html>
         <Head />
-        <Preview>budget-alert</Preview>
+        <Preview>Budget Alert</Preview>
         <Body style={styles.body}>
           <Container style={styles.container}>
-            <Heading style={styles.title}>budget-alert</Heading>
+            <Heading style={styles.title}>Budget Alert</Heading>
             <Text style={styles.text}>Hello {userName},</Text>
             <Text style={styles.text}>
               You&rsquo;ve used {data?.percentageUsed.toFixed(1)}% of your
@@ -94,7 +134,7 @@ export default function EmailTemplate({
             </Text>
             <Section style={styles.statsContainer}>
               <div style={styles.stat}>
-                <Text style={styles.text}>budget Amount</Text>
+                <Text style={styles.text}>Budget Amount</Text>
                 <Text style={styles.heading}>${data?.budgetAmount}</Text>
               </div>
               <div style={styles.stat}>
@@ -170,5 +210,13 @@ const styles = {
     justifyContent: "space-between",
     padding: "12px 0",
     borderBottom: "1px solid #e5e7eb",
+  },
+  footer: {
+    color: "#6b7280",
+    fontSize: "14px",
+    textAlign: "center",
+    marginTop: "32px",
+    paddingTop: "16px",
+    borderTop: "1px solid #e5e7eb",
   },
 };
