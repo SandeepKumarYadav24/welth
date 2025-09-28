@@ -31,8 +31,16 @@ import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
+const AddTransactionForm = ({
+  accounts,
+  categories,
+  editMode = false,
+  initialData = null,
+}) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
+
   const {
     register,
     handleSubmit,
@@ -43,43 +51,64 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
     reset,
   } = useForm({
     resolver: zodResolver(transactionSchema),
-    defaultValues: {
-      type: "EXPENSE",
-      amount: "",
-      description: "",
-      accountId: accounts.find((ac) => ac.isDefault)?.id,
-      category: categories.find((cat) => cat.type === "EXPENSE")?.id || "",
-      date: new Date(),
-      isRecurring: false,
-    },
+    defaultValues:
+      editMode && initialData
+        ? {
+            type: initialData.type,
+            amount: initialData.amount.toString(),
+            description: initialData.description,
+            accountId: initialData.accountId,
+            category: initialData.category,
+            date: new Date(initialData.date),
+            isRecurring: initialData.isRecurring,
+            ...(initialData.recurringInterval && {
+              recurringInterval: initialData.recurringInterval,
+            }),
+          }
+        : {
+            type: "EXPENSE",
+            amount: "",
+            description: "",
+            accountId: accounts.find((ac) => ac.isDefault)?.id,
+            date: new Date(),
+            isRecurring: false,
+          },
   });
 
   const {
     loading: transactionLoading,
     fn: transactionFn,
     data: transactionResult,
-  } = useFetch(createTransaction);
+  } = useFetch(editMode ? updateTransaction : createTransaction);
 
   const type = watch("type");
   const isRecurring = watch("isRecurring");
   const date = watch("date");
 
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     const formData = {
       ...data,
       amount: parseFloat(data.amount),
     };
 
-    transactionFn(formData);
+    if (editMode) {
+      transactionFn(editId, formData);
+    } else {
+      transactionFn(formData);
+    }
   };
 
   useEffect(() => {
     if (transactionResult?.success && !transactionLoading) {
-      toast.success("Transaction created successfully");
+      toast.success(
+        editMode
+          ? "Transaction updated successfully"
+          : "Transaction created successfully"
+      );
       reset();
       router.push(`/account/${transactionResult.data.accountId}`);
     }
-  }, [transactionResult, transactionLoading]);
+  }, [transactionResult, transactionLoading, editMode]);
 
   const filteredCategories = categories.filter(
     (category) => category.type === type
@@ -102,7 +131,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
       {/*  AI Recipt Scanner */}
-      <ReceiptScanner onScanComplete={handleScanComplete} />
+      {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
 
       {/* Type */}
       <div className="space-y-2">
@@ -173,7 +202,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
       {/* Category */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Category</label>
-        <Select
+        <Select 
           onValueChange={(value) => setValue("category", value)}
           defaultValue={getValues("category")}
           suppressHydrationWarning={true}
@@ -181,7 +210,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent >
             {filteredCategories.map((category) => (
               <SelectItem key={category.id} value={category.id}>
                 {category.name}
@@ -288,7 +317,16 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
           Cancel
         </Button>
         <Button type="submit" className="flex-1" disabled={transactionLoading}>
-          Create Transaction
+          {transactionLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {editMode ? "Updating..." : "Creating..."}
+            </>
+          ) : editMode ? (
+            "Update Transaction"
+          ) : (
+            "Create Transaction"
+          )}
         </Button>
       </div>
     </form>
