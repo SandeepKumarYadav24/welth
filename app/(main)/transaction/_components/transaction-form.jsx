@@ -85,7 +85,9 @@ const AddTransactionForm = ({ accounts, categories, editMode = false }) => {
     (category) => category.type === type
   );
 
-  const handleScanComplete = (scannedData) => {};
+  const handleScanComplete = (scannedData) => {
+    console.log(scannedData);
+  };
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
