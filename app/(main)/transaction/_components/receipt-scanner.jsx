@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Camera } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import useFetch from "@/hooks/use-fetch";
 import { scanReceipt } from "@/actions/transaction";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,18 @@ const ReceiptScanner = (onScanComplete) => {
           if (file) handleReceiptScan(file);
         }}
       />
-      <Button>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full h-10 bg-gradient-to-br from-orange-500 via-pink-500 to-purple-500 animate-gradient hover:opacity-90 transition-opacity text-white hover:text-white"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={scanReceiptLoading}
+      >
         {scanReceiptLoading ? (
-          <></>
+          <>
+            <Loader2 className="mr-2 animate-spin" />
+            <span>Scanning Receipt...</span>
+          </>
         ) : (
           <>
             <Camera className="mr-2" />
