@@ -1,36 +1,30 @@
-import  { createMiddleware } from "@arcjet/next";
+// middleware.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { aj } from "./actions/mid.js"
 
+// Match routes you want to protect
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/account(.*)",
   "/transaction(.*)",
 ]);
 
+export default clerkMiddleware(async (auth, req) => {
+  const { userId, redirectToSignIn } = await auth();
 
-
-// Create base Clerk middleware
-const clerk = clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
-
+  // Redirect if not signed in and accessing protected route
   if (!userId && isProtectedRoute(req)) {
-    const { redirectToSignIn } = await auth();
     return redirectToSignIn();
   }
 
   return NextResponse.next();
 });
 
-// Chain middlewares - ArcJet runs first, then Clerk
-export default createMiddleware(aj, clerk);
-
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
+    // Run Clerk on all non-static routes
+    "/((?!_next|.*\\..*).*)",
+    // And all API routes
     "/(api|trpc)(.*)",
   ],
 };
