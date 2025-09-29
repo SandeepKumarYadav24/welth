@@ -1,4 +1,4 @@
-import arcjet from "@arcjet/next";
+import arcjet ,{ detectBot, shield} from "@arcjet/next";
 
 // Create Arcjet middleware
 const aj = arcjet({
