@@ -132,7 +132,7 @@ export async function getUserAccounts() {
   } catch (error) {
     console.error(error.message);
   }
-}
+};
 
 export async function getDashboardData() {
   const { userId } = await auth();
