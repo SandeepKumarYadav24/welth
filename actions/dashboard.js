@@ -54,7 +54,7 @@ export async function CreateAccount(data) {
     });
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("User not found in CreateAccount Function");
     }
 
     // Convert balance to float before saving
@@ -110,7 +110,7 @@ export async function getUserAccounts() {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("User not found in getUserAccount function");
   }
 
  try {
@@ -143,7 +143,7 @@ export async function getDashboardData() {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("User not found in getDashboard function");
   }
 
   // Get all user transactions
