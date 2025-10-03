@@ -22,7 +22,8 @@ export const statsData = [
     label: "Uptime",
   },
   {
-    value: "4.9/5",
+    value: "3.5/5",
+    
     label: "User Rating",
   },
 ];
