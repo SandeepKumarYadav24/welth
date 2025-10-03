@@ -10,15 +10,15 @@ import {
 // Stats Data
 export const statsData = [
   {
-    value: "50K+",
+    value: "100+",
     label: "Active Users",
   },
   {
-    value: "$",
+    value: "$2M",
     label: "Transactions Tracked",
   },
   {
-    value: "99.9%",
+    value: "75",
     label: "Uptime",
   },
   {
