@@ -1,7 +1,7 @@
 import { getAccountWithTransactions } from '@/actions/accounts';
 import { notFound } from 'next/navigation';
 import React, { Suspense } from 'react';
-import TransactionTable from '../_components/transaction-table';
+import { TransactionTable } from '../_components/transaction-table';
 import { BarLoader } from 'react-spinners';
 import { AccountChart } from "../_components/account-chart";
 
