@@ -39,7 +39,7 @@ function getRandomCategory(type) {
   const category = categories[Math.floor(Math.random() * categories.length)];
   const amount = getRandomAmount(category.range[0], category.range[1]);
   return { category: category.name, amount };
-}
+}                                       
 
 export async function seedTransactions() {
   try {
