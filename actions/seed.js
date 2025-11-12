@@ -26,6 +26,7 @@ const CATEGORIES = {
     { name: "education", range: [200, 1000] },
     { name: "travel", range: [500, 2000] },
   ],
+  f
 };
 
 // Helper to generate random amount within a range
