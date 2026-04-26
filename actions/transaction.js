@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import aj from "@/lib/arcjet";
 import { request } from "@arcjet/next";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getCurrentDbUser } from "@/lib/db-user";
 
 const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -45,9 +46,8 @@ export async function createTransaction(data) {
       throw new Error("Request blocked");
     }
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    const user = await getCurrentDbUser();
+    if (!user) throw new Error("User not found");
 
     const account = await db.account.findUnique({
       where: {
@@ -56,9 +56,7 @@ export async function createTransaction(data) {
       },
     });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+    if (!account) throw new Error("Account not found");
 
     // Calculate new balance
     const balanceChange = data.type === "EXPENSE" ? -data.amount : data.amount;
@@ -185,9 +183,7 @@ export async function getTransaction(id) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
+  const user = await getCurrentDbUser();
 
   if (!user) throw new Error("User not found");
 
@@ -208,9 +204,7 @@ export async function updateTransaction(id, data) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    const user = await getCurrentDbUser();
 
     if (!user) throw new Error("User not found");
 

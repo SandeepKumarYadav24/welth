@@ -3,14 +3,18 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma.js";
 
 export async function POST(req) {
-  const payload = await req.json();
-  const headerPayload = headers();
+  const payload = await req.text();
+  const headerPayload = await headers();
 
   const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
   let evt;
   try {
-    evt = wh.verify(JSON.stringify(payload), headerPayload);
+    evt = wh.verify(payload, {
+      "svix-id": headerPayload.get("svix-id"),
+      "svix-timestamp": headerPayload.get("svix-timestamp"),
+      "svix-signature": headerPayload.get("svix-signature"),
+    });
   } catch (err) {
     console.error("Webhook verification failed", err.message);
     return new Response("Invalid signature", { status: 400 });
@@ -20,16 +24,21 @@ export async function POST(req) {
 
   if (eventType === "user.created" || eventType === "user.updated") {
     const { id, email_addresses, first_name, last_name } = evt.data;
+    const email = email_addresses[0]?.email_address;
+
+    if (!email) {
+      return new Response("Missing primary email", { status: 400 });
+    }
 
     await db.user.upsert({
       where: { clerkUserId: id },
       update: {
-        email: email_addresses[0]?.email_address,
+        email,
         name: `${first_name || ""} ${last_name || ""}`.trim(),
       },
       create: {
         clerkUserId: id,
-        email: email_addresses[0]?.email_address,
+        email,
         name: `${first_name || ""} ${last_name || ""}`.trim(),
       },
     });

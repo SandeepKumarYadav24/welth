@@ -5,41 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import aj from "@/lib/arcjet";
 import { request } from "@arcjet/next";
-
-// Helper function to ensure user exists in database
-async function ensureUserExists(userId) {
-  let user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  // If user doesn't exist in database, create them using Clerk data
-  if (!user) {
-    try {
-      const { currentUser } = await import("@clerk/nextjs/server");
-      const clerkUser = await currentUser();
-      
-      if (!clerkUser) {
-        throw new Error("Clerk user not found");
-      }
-
-      const name = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim();
-      
-      user = await db.user.create({
-        data: {
-          clerkUserId: clerkUser.id,
-          name: name || "Unknown User",
-          imageUrl: clerkUser.imageUrl,
-          email: clerkUser.emailAddresses[0]?.emailAddress,
-        },
-      });
-    } catch (createError) {
-      console.error("Error creating user:", createError);
-      throw new Error("Failed to create user in database");
-    }
-  }
-
-  return user;
-}
+import { getCurrentDbUser } from "@/lib/db-user";
 
 const serializeTransaction = (obj) => {
   const serialized = { ...obj };              //serializeTransaction → make DB/objects JSON-safe
@@ -84,7 +50,8 @@ export async function CreateAccount(data) {
       throw new Error("Request blocked");
     }
 
-    const user = await ensureUserExists(userId);
+    const user = await getCurrentDbUser();
+    if (!user) throw new Error("User not found");
 
     // Convert balance to float before saving
     const balanceFloat = parseFloat(data.balance);  //Converts a string → floating point number(parseFloat("10.20") + 50 =60.20)
@@ -134,9 +101,10 @@ export async function getUserAccounts() {
   const { userId } = await auth();                   //fetch account from db
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await ensureUserExists(userId);
+  const user = await getCurrentDbUser();
+  if (!user) throw new Error("User not found");
 
- try {
+  try {
     const accounts = await db.account.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -153,7 +121,8 @@ export async function getUserAccounts() {
 
     return serializedAccounts;
   } catch (error) {
-    console.error(error.message);
+    console.error("Error fetching user accounts:", error);
+    throw error;
   }
 };
 
@@ -161,7 +130,8 @@ export async function getDashboardData() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await ensureUserExists(userId);
+  const user = await getCurrentDbUser();
+  if (!user) throw new Error("User not found");
 
   // Get all user transactions
   const transactions = await db.transaction.findMany({

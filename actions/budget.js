@@ -3,15 +3,14 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { getCurrentDbUser } from "@/lib/db-user";
 
 export async function getCurrentBudget(accountId) {
   try {
     const { userId } = await auth();              // for fetch current budget
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    const user = await getCurrentDbUser();
 
     if (!user) {
       throw new Error("User not found");
@@ -68,9 +67,7 @@ export async function updateBudget(amount) {
     const { userId } = await auth();           // // for update budget
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    const user = await getCurrentDbUser();
 
     if (!user) throw new Error("User not found");
 
